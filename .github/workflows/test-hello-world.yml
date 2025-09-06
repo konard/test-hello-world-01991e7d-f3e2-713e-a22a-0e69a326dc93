@@ -1,0 +1,34 @@
+name: Test Hello World
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install SBCL
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sbcl
+
+    - name: Run Hello World program
+      run: sbcl --load hello-world.lisp --eval "(quit)"
+
+    - name: Verify output
+      run: |
+        output=$(sbcl --load hello-world.lisp --eval "(quit)" 2>&1)
+        if [[ "$output" == *"Hello, World!"* ]]; then
+          echo "Test passed: Output contains 'Hello, World!'"
+        else
+          echo "Test failed: Expected 'Hello, World!' in output"
+          echo "Actual output: $output"
+          exit 1
+        fi
